@@ -7,6 +7,9 @@ import valid from 'card-validator'
 // Icons
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
 
+// Context
+import { useFormData } from '../../context/form'
+
 export interface BankDetailsProps {}
 
 interface BankDetailsFormProps {
@@ -55,12 +58,9 @@ const formSchema = Yup.object().shape({
 export const BankDetails = (props: BankDetailsProps) => {
   const {} = props
   const router = useRouter()
+  const { setFormValues } = useFormData()
 
   const validationOpt = { resolver: yupResolver(formSchema) }
-
-  const goToStep = (step: number, asPath: string) => {
-    router.push(`/?step=${step}`, asPath)
-  }
 
   const {
     handleSubmit,
@@ -69,7 +69,10 @@ export const BankDetails = (props: BankDetailsProps) => {
   } = useForm<BankDetailsFormProps>(validationOpt)
 
   // Do some request
-  const onSubmit: SubmitHandler<BankDetailsFormProps> = (data) => console.log(data)
+  const onSubmit: SubmitHandler<BankDetailsFormProps> = (data) => {
+    setFormValues(data)
+    router.push(`/?step=3`)
+  }
 
   return (
     <>
@@ -78,13 +81,14 @@ export const BankDetails = (props: BankDetailsProps) => {
       <form onSubmit={handleSubmit(onSubmit)} className="mt-5">
         <div className="grid grid-cols-6 gap-6">
           <div className="col-span-6 sm:col-span-3">
-            <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="first-name" className="sr-only block text-sm font-medium text-gray-700">
               First name *
             </label>
             <input
               type="text"
               id="first-name"
               autoComplete="given-name"
+              placeholder="First name"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               {...register('firstName', {
                 required: true,
@@ -98,13 +102,14 @@ export const BankDetails = (props: BankDetailsProps) => {
           </div>
 
           <div className="col-span-6 sm:col-span-3">
-            <label htmlFor="last-name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="last-name" className="sr-only block text-sm font-medium text-gray-700">
               Last name ( optional )
             </label>
             <input
               type="text"
               id="last-name"
               autoComplete="family-name"
+              placeholder="Last name ( optional )"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               {...register('lastName')}
             />
@@ -176,7 +181,7 @@ export const BankDetails = (props: BankDetailsProps) => {
           <button
             type="button"
             className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={() => goToStep(0, '/email')}
+            onClick={() => router.push(`/?step=1`)}
           >
             Back
           </button>

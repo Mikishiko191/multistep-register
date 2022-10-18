@@ -1,10 +1,13 @@
-import { useState, useId, useCallback } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { RadioGroup } from '@headlessui/react'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
 
 // Icons
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
+
+// Context
+import { useFormData } from '../../context/form'
 
 const carModelList = [
   { id: 1, title: 'Hyundai', description: 'South Korean car manufacturer' },
@@ -28,15 +31,21 @@ type CarListModelProps = typeof carModelList[0]
 
 export const CarModel = (props: CarModelProps) => {
   const {} = props
+  const { setFormValues } = useFormData()
   const [selectedCarModel, setSelectedCarModel] = useState<CarListModelProps | null>()
   const [typeOwnCarModel, setTypeOwnCarModel] = useState('')
   const router = useRouter()
 
-  const goToStep = (step: number, asPath: string) => {
-    router.push(`/?step=${step}`, asPath)
+  const onHandleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    if (selectedCarModel?.id) {
+      setFormValues({ carModel: selectedCarModel.title })
+      router.push(`/?step=4`)
+    } else {
+      setFormValues({ carModel: typeOwnCarModel })
+      router.push(`/?step=4`)
+    }
   }
-
-  const onHandleSubmit = () => {}
 
   const onHandleSelectCarModel = (selectedModel: CarListModelProps) => {
     setSelectedCarModel((prevSelectedModel) => {
@@ -129,14 +138,13 @@ export const CarModel = (props: CarModelProps) => {
           <button
             type="button"
             className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={() => goToStep(0, '/email')}
+            onClick={() => router.push(`/?step=2`)}
           >
             Back
           </button>
           <button
-            type="button"
+            type="submit"
             className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={() => goToStep(1, '/password')}
           >
             Continue
             <ArrowRightIcon className="h-5 w-5 text-white ml-2" aria-hidden="true" />

@@ -1,12 +1,10 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 
 // Components
 import { Steps } from '../components/steps'
-// import { useLayoutEffect } from 'react'
-// import Image from 'next/image'
 import { ProgressBar } from '../components/progress-bar'
 
 // Forms
@@ -34,21 +32,13 @@ const stepProgress = (step: string | string[] | 0) => {
 }
 
 const Home: NextPage = () => {
-  const onSubmit = (data: any) => console.log(data)
   const emailRef = useRef<HTMLDivElement>(null)
-  const passwordRef = useRef<HTMLDivElement>(null)
-  const uploadRegistrationRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const formStep = router.query.step ?? 0
 
-  const goToStep = (step: number, asPath: string) => {
-    // router.push(`/?step=${step}`, asPath)
-    // passwordRef?.current.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
-  }
-
-  // useLayoutEffect(() => {
-  //   goToStep(0, '/email')
-  // }, [])
+  useEffect(() => {
+    router.push(`/?step=0`)
+  }, [])
 
   return (
     <div>
@@ -76,25 +66,22 @@ const Home: NextPage = () => {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-48 mb-10">
         <main className="mx-auto max-w-3xl">
-          <div className={`mt-10`}>
-            {/* <div className={`${formStep === '0' ? '' : 'opacity-50 cursor-not-allowed'}`} ref={emailRef}> */}
+          <div className={`${formStep === '0' ? '' : 'opacity-50 cursor-not-allowed'}`}>
             <Email />
-            {/* <button onClick={() => goToStep(4, '/bank-detail')}>scroll to password</button> */}
           </div>
-          <div className={`mt-10`}>
-            {/* <div className={`mt-10 ${formStep === '1' ? '' : 'opacity-50 cursor-not-allowed'}`}> */}
+
+          <div className={`mt-20 ${formStep === '1' ? '' : 'opacity-50 cursor-not-allowed'}`}>
             <Password />
           </div>
-          <div className={`mt-10`}>
-            {/* <div className={`mt-20 ${formStep === '2' ? '' : 'opacity-50 cursor-not-allowed'}`}> */}
+
+          <div className={`mt-20 ${formStep === '2' ? '' : 'opacity-50 cursor-not-allowed'}`}>
             <BankDetails />
           </div>
-          <div className={`mt-10`}>
-            {/* <div className={`mt-20 ${formStep === '3' ? '' : 'opacity-50 cursor-not-allowed'}`}> */}
+
+          <div className={`mt-20 ${formStep === '3' ? '' : 'opacity-50 cursor-not-allowed'}`}>
             <CarModel />
           </div>
-          {/* <div className={`mt-20 ${formStep === '4' ? '' : 'opacity-50 cursor-not-allowed'}`} ref={passwordRef}> */}
-          <div className={`mt-10`}>
+          <div className={`mt-20 ${formStep === '4' ? '' : 'opacity-50 cursor-not-allowed'}`}>
             <UploadCarRegistration />
           </div>
         </main>

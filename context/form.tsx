@@ -1,11 +1,25 @@
 import { useState, createContext, useContext } from 'react'
 
-export const FormContext = createContext()
+interface EmailFormProps {
+  email: string
+}
 
-export default function FormProvider({ children }) {
-  const [data, setData] = useState({})
+interface PasswordsFormProps {
+  password: string
+  passwordConfirm: string
+}
 
-  const setFormValues = (values) => {
+interface FormProps {
+  data: any
+  setFormValues: (values: any) => void
+}
+
+const FormContext = createContext({} as FormProps)
+
+const FormProvider = ({ children }: { children: React.ReactNode }) => {
+  const [data, setData] = useState<FormProps | null>(null)
+
+  const setFormValues = (values: any) => {
     setData((prevValues) => ({
       ...prevValues,
       ...values,
@@ -15,4 +29,12 @@ export default function FormProvider({ children }) {
   return <FormContext.Provider value={{ data, setFormValues }}>{children}</FormContext.Provider>
 }
 
-export const useFormData = () => useContext(FormContext)
+const useFormData = () => {
+  const context = useContext(FormContext)
+
+  if (!context) throw new Error('useContext must be used inside useFormData')
+
+  return context
+}
+
+export { useFormData, FormProvider, FormContext }

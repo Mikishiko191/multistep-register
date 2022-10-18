@@ -4,6 +4,12 @@ import { useRouter } from 'next/router'
 // Icons
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
 
+// Context
+import { useFormData } from '../../context/form'
+
+// Utils
+import { wait } from '../../utils/wait'
+
 export interface UploadCarRegistrationProps {}
 
 type FileProps = {
@@ -13,15 +19,12 @@ type FileProps = {
 
 export const UploadCarRegistration = (props: UploadCarRegistrationProps) => {
   const {} = props
+  const { setFormValues } = useFormData()
   const [image, setImage] = useState<FileProps>({ preview: '', raw: null })
   const [dragActive, setDragActive] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const router = useRouter()
-
-  const goToStep = (step: number, asPath: string) => {
-    router.push(`/?step=${step}`, asPath)
-  }
 
   const handleChange = (event: React.FormEvent) => {
     const target = event.target as HTMLInputElement
@@ -62,10 +65,12 @@ export const UploadCarRegistration = (props: UploadCarRegistrationProps) => {
     }
   }
 
-  const onHandleSubmit = (event: React.FormEvent) => {
+  const onHandleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    console.log(image)
+    setFormValues({ carRegistrationImage: image.raw })
+    await wait(500)
+    router.push('/preview')
   }
 
   return (
@@ -135,7 +140,7 @@ export const UploadCarRegistration = (props: UploadCarRegistrationProps) => {
           <button
             type="button"
             className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={() => goToStep(0, '/email')}
+            onClick={() => router.push(`/?step=3`)}
           >
             Back
           </button>

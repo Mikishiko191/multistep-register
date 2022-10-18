@@ -4,6 +4,9 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 // Icons
 import { ArrowRightIcon, EnvelopeIcon } from '@heroicons/react/20/solid'
 
+// Context
+import { useFormData } from '../../context/form'
+
 export interface EmailProps {}
 
 interface EmailFormProps {
@@ -12,6 +15,7 @@ interface EmailFormProps {
 
 export const Email = (props: EmailProps) => {
   const {} = props
+  const { setFormValues } = useFormData()
   const router = useRouter()
 
   const {
@@ -20,14 +24,10 @@ export const Email = (props: EmailProps) => {
     register,
   } = useForm<EmailFormProps>()
 
-  // const goToStep = (step: number, asPath: string) => {
-  //   router.push(`/?step=${step}`, asPath)
-  // }
-
   // Do some request
   const onSubmit: SubmitHandler<EmailFormProps> = (data) => {
-    router.push(`/?step=1`, '/password')
-    console.log(data)
+    router.push(`/?step=1`)
+    setFormValues(data)
   }
 
   return (
@@ -62,17 +62,9 @@ export const Email = (props: EmailProps) => {
           </p>
         )}
         <div className="flex gap-2 mt-5">
-          {/* <button
-          type="button"
-          className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          onClick={() => goToStep(0, '/email')}
-        >
-          Back
-        </button> */}
           <button
             type="submit"
             className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            // onClick={() => goToStep(1, '/password')}
           >
             Continue
             <ArrowRightIcon className="h-5 w-5 text-white ml-2" aria-hidden="true" />

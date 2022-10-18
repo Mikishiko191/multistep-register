@@ -6,6 +6,9 @@ import * as Yup from 'yup'
 // Icons
 import { ArrowRightIcon, LockClosedIcon } from '@heroicons/react/20/solid'
 
+// Context
+import { useFormData } from '../../context/form'
+
 export interface PasswordProps {}
 
 interface PasswordsFormProps {
@@ -22,6 +25,7 @@ const formSchema = Yup.object().shape({
 
 export const Password = (props: PasswordProps) => {
   const {} = props
+  const { setFormValues } = useFormData()
   const router = useRouter()
 
   const validationOpt = { resolver: yupResolver(formSchema) }
@@ -32,12 +36,11 @@ export const Password = (props: PasswordProps) => {
     register,
   } = useForm<PasswordsFormProps>(validationOpt)
 
-  const goToStep = (step: number, asPath: string) => {
-    router.push(`/?step=${step}`, asPath)
-  }
-
   // Do some request
-  const onSubmit: SubmitHandler<PasswordsFormProps> = (data) => console.log(data)
+  const onSubmit: SubmitHandler<PasswordsFormProps> = (data) => {
+    setFormValues(data)
+    router.push(`/?step=2`)
+  }
 
   return (
     <>
@@ -97,7 +100,7 @@ export const Password = (props: PasswordProps) => {
           <button
             type="button"
             className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={() => goToStep(0, '/email')}
+            onClick={() => router.push(`/?step=0`)}
           >
             Back
           </button>
