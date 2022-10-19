@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { RefObject, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -10,7 +10,14 @@ import { ArrowRightIcon, LockClosedIcon } from '@heroicons/react/20/solid'
 // Context
 import { useStore } from '../../context/form'
 
-export interface PasswordProps {}
+// Utils
+import { wait } from '../../utils/wait'
+import { options } from '../../utils/scroll-view-options'
+
+export interface PasswordProps {
+  nextRef: RefObject<HTMLDivElement> | null
+  prevRef: RefObject<HTMLDivElement> | null
+}
 
 interface PasswordsFormProps {
   password: string
@@ -25,7 +32,7 @@ const formSchema = Yup.object().shape({
 })
 
 export const Password = (props: PasswordProps) => {
-  const {} = props
+  const { nextRef, prevRef } = props
   const { setStore, storageValues } = useStore()
   const router = useRouter()
 
@@ -44,10 +51,24 @@ export const Password = (props: PasswordProps) => {
   }, [])
 
   // Do some request
-  const onSubmit: SubmitHandler<PasswordsFormProps> = (data, e) => {
+  const onSubmit: SubmitHandler<PasswordsFormProps> = async (data, e) => {
     e?.preventDefault()
     setStore(data)
     router.push(`/?step=2`)
+
+    if (nextRef?.current) {
+      await wait(500)
+      nextRef?.current.scrollIntoView(options)
+    }
+  }
+
+  const onHandleChangeRoute = async () => {
+    router.push(`/?step=0`)
+
+    if (prevRef?.current) {
+      await wait(500)
+      prevRef?.current.scrollIntoView(options)
+    }
   }
 
   return (
@@ -110,7 +131,7 @@ export const Password = (props: PasswordProps) => {
           <button
             type="button"
             className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={() => router.push(`/?step=0`)}
+            onClick={onHandleChangeRoute}
           >
             Back
           </button>

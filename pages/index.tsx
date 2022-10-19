@@ -17,31 +17,45 @@ import { BankDetails } from '../components/forms/bank-details'
 // Hooks
 import { useLocalStorage } from '../hooks/useLocalStorage'
 
-const stepProgress = (step: string | string[] | 0) => {
-  switch (step) {
-    case '0':
-      return 20
-    case '1':
-      return 40
-    case '2':
-      return 60
-    case '3':
-      return 80
-    case '4':
-      return 100
-    default:
-      return 25
-  }
-}
+// Utils
+import { wait } from '../utils/wait'
+import { options } from '../utils/scroll-view-options'
+import { stepProgress } from '../utils/step-progress'
 
 const Home: NextPage = () => {
   const emailRef = useRef<HTMLDivElement>(null)
+  const passwordRef = useRef<HTMLDivElement>(null)
+  const bankDetailRef = useRef<HTMLDivElement>(null)
+  const carModelRef = useRef<HTMLDivElement>(null)
+  const uploadCarRegistrationRef = useRef<HTMLDivElement>(null)
+
   const router = useRouter()
   const formStep = router.query.step ?? 0
   const [formStepValue, _setFormStepValue] = useLocalStorage<typeof formStep>('form-step', 0)
 
   useEffect(() => {
     router.push(`/?step=${formStepValue}`)
+
+    // Scroll to view on initialize
+    const onHandleScrollToView = async () => {
+      await wait(500)
+      switch (formStepValue) {
+        case '0' || 0:
+          return emailRef.current?.scrollIntoView(options)
+        case '1':
+          return passwordRef.current?.scrollIntoView(options)
+        case '2':
+          return bankDetailRef.current?.scrollIntoView(options)
+        case '3':
+          return carModelRef.current?.scrollIntoView(options)
+        case '4':
+          return uploadCarRegistrationRef.current?.scrollIntoView(options)
+        default:
+          return emailRef.current?.scrollIntoView(options)
+      }
+    }
+
+    onHandleScrollToView()
   }, [])
 
   return (
@@ -70,23 +84,26 @@ const Home: NextPage = () => {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-28 mb-10">
         <main className="mx-auto max-w-3xl">
-          <div className={`${formStep === '0' ? '' : 'opacity-50 cursor-not-allowed'}`}>
-            <Email />
+          <div className={`${formStep === '0' ? '' : 'opacity-50 cursor-not-allowed'}`} ref={emailRef}>
+            <Email nextRef={passwordRef} />
           </div>
 
-          <div className={`mt-20 ${formStep === '1' ? '' : 'opacity-50 cursor-not-allowed'}`}>
-            <Password />
+          <div className={`mt-20 ${formStep === '1' ? '' : 'opacity-50 cursor-not-allowed'}`} ref={passwordRef}>
+            <Password nextRef={bankDetailRef} prevRef={emailRef} />
           </div>
 
-          <div className={`mt-20 ${formStep === '2' ? '' : 'opacity-50 cursor-not-allowed'}`}>
-            <BankDetails />
+          <div className={`mt-20 ${formStep === '2' ? '' : 'opacity-50 cursor-not-allowed'}`} ref={bankDetailRef}>
+            <BankDetails nextRef={carModelRef} prevRef={passwordRef} />
           </div>
 
-          <div className={`mt-20 ${formStep === '3' ? '' : 'opacity-50 cursor-not-allowed'}`}>
-            <CarModel />
+          <div className={`mt-20 ${formStep === '3' ? '' : 'opacity-50 cursor-not-allowed'}`} ref={carModelRef}>
+            <CarModel nextRef={uploadCarRegistrationRef} prevRef={bankDetailRef} />
           </div>
-          <div className={`mt-20 ${formStep === '4' ? '' : 'opacity-50 cursor-not-allowed'}`}>
-            <UploadCarRegistration />
+          <div
+            className={`mt-20 ${formStep === '4' ? '' : 'opacity-50 cursor-not-allowed'}`}
+            ref={uploadCarRegistrationRef}
+          >
+            <UploadCarRegistration prevRef={carModelRef} />
           </div>
         </main>
       </div>

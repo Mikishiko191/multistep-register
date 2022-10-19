@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, RefObject } from 'react'
 import { useRouter } from 'next/router'
 
 // Icons
@@ -9,8 +9,11 @@ import { useStore } from '../../context/form'
 
 // Utils
 import { wait } from '../../utils/wait'
+import { options } from '../../utils/scroll-view-options'
 
-export interface UploadCarRegistrationProps {}
+export interface UploadCarRegistrationProps {
+  prevRef: RefObject<HTMLDivElement> | null
+}
 
 type FileProps = {
   preview: string
@@ -18,7 +21,7 @@ type FileProps = {
 }
 
 export const UploadCarRegistration = (props: UploadCarRegistrationProps) => {
-  const {} = props
+  const { prevRef } = props
   const { setStore } = useStore()
   const [image, setImage] = useState<FileProps>({ preview: '', raw: null })
   const [dragActive, setDragActive] = useState(false)
@@ -82,6 +85,15 @@ export const UploadCarRegistration = (props: UploadCarRegistrationProps) => {
       router.push('/preview')
     } else {
       setErrorMessage('Upload car registration image required')
+    }
+  }
+
+  const onHandleChangeRoute = async () => {
+    router.push(`/?step=3`)
+
+    if (prevRef?.current) {
+      await wait(500)
+      prevRef?.current.scrollIntoView(options)
     }
   }
 
@@ -153,7 +165,7 @@ export const UploadCarRegistration = (props: UploadCarRegistrationProps) => {
           <button
             type="button"
             className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={() => router.push(`/?step=3`)}
+            onClick={onHandleChangeRoute}
           >
             Back
           </button>

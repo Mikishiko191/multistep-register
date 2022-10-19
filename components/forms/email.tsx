@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { RefObject, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useForm, SubmitHandler } from 'react-hook-form'
 
@@ -8,14 +8,20 @@ import { ArrowRightIcon, EnvelopeIcon } from '@heroicons/react/20/solid'
 // Context
 import { useStore } from '../../context/form'
 
-export interface EmailProps {}
+// Utils
+import { options } from '../../utils/scroll-view-options'
+import { wait } from '../../utils/wait'
+
+export interface EmailProps {
+  nextRef: RefObject<HTMLDivElement> | null
+}
 
 interface EmailFormProps {
   email: string
 }
 
 export const Email = (props: EmailProps) => {
-  const {} = props
+  const { nextRef } = props
   const { setStore, storageValues } = useStore()
   const router = useRouter()
 
@@ -31,10 +37,14 @@ export const Email = (props: EmailProps) => {
   }, [])
 
   // Do some request
-  const onSubmit: SubmitHandler<EmailFormProps> = (data, e) => {
+  const onSubmit: SubmitHandler<EmailFormProps> = async (data, e) => {
     e?.preventDefault()
     router.push(`/?step=1`)
     setStore(data)
+    if (nextRef?.current) {
+      await wait(500)
+      nextRef?.current.scrollIntoView(options)
+    }
   }
 
   return (

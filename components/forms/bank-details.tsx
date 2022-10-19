@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, RefObject } from 'react'
 import { useRouter } from 'next/router'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -10,8 +10,13 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid'
 
 // Context
 import { useStore } from '../../context/form'
+import { options } from '../../utils/scroll-view-options'
+import { wait } from '../../utils/wait'
 
-export interface BankDetailsProps {}
+export interface BankDetailsProps {
+  nextRef: RefObject<HTMLDivElement> | null
+  prevRef: RefObject<HTMLDivElement> | null
+}
 
 interface BankDetailsFormProps {
   firstName: string
@@ -65,7 +70,7 @@ const formSchema = Yup.object().shape({
 })
 
 export const BankDetails = (props: BankDetailsProps) => {
-  const {} = props
+  const { nextRef, prevRef } = props
   const router = useRouter()
   const { setStore, storageValues } = useStore()
 
@@ -87,10 +92,24 @@ export const BankDetails = (props: BankDetailsProps) => {
   }, [])
 
   // Do some request
-  const onSubmit: SubmitHandler<BankDetailsFormProps> = (data, e) => {
+  const onSubmit: SubmitHandler<BankDetailsFormProps> = async (data, e) => {
     e?.preventDefault()
     setStore(data)
     router.push(`/?step=3`)
+
+    if (nextRef?.current) {
+      await wait(500)
+      nextRef?.current.scrollIntoView(options)
+    }
+  }
+
+  const onHandleChangeRoute = async () => {
+    router.push(`/?step=1`)
+
+    if (prevRef?.current) {
+      await wait(500)
+      prevRef?.current.scrollIntoView(options)
+    }
   }
 
   return (
@@ -201,7 +220,7 @@ export const BankDetails = (props: BankDetailsProps) => {
           <button
             type="button"
             className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={() => router.push(`/?step=1`)}
+            onClick={onHandleChangeRoute}
           >
             Back
           </button>

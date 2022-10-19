@@ -1,13 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, RefObject } from 'react'
 import { useRouter } from 'next/router'
-import { RadioGroup } from '@headlessui/react'
-import { CheckCircleIcon } from '@heroicons/react/20/solid'
 
 // Icons
+import { RadioGroup } from '@headlessui/react'
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
+import { CheckCircleIcon } from '@heroicons/react/20/solid'
 
 // Context
 import { useStore } from '../../context/form'
+
+// Utils
+import { classNames } from '../../utils/classNames'
+import { options } from '../../utils/scroll-view-options'
+import { wait } from '../../utils/wait'
 
 const carModelList = [
   { id: 1, title: 'Hyundai', description: 'South Korean car manufacturer' },
@@ -21,16 +26,15 @@ const carModelList = [
   { id: 9, title: 'Geely', description: 'Chinese conglomerate Geely Auto' },
 ]
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ')
+export interface CarModelProps {
+  nextRef: RefObject<HTMLDivElement> | null
+  prevRef: RefObject<HTMLDivElement> | null
 }
-
-export interface CarModelProps {}
 
 type CarListModelProps = typeof carModelList[0]
 
 export const CarModel = (props: CarModelProps) => {
-  const {} = props
+  const { nextRef, prevRef } = props
   const { setStore, storageValues } = useStore()
   const [selectedCarModel, setSelectedCarModel] = useState<CarListModelProps | null>()
   const [typeOwnCarModel, setTypeOwnCarModel] = useState('')
@@ -48,18 +52,35 @@ export const CarModel = (props: CarModelProps) => {
     setTypeOwnCarModel(storageValues.carModel)
   }, [])
 
-  const onHandleSubmit = (event: React.FormEvent) => {
+  const onHandleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (selectedCarModel?.id || !!typeOwnCarModel.length) {
       if (selectedCarModel?.id) {
         setStore({ carModel: selectedCarModel.title })
         router.push(`/?step=4`)
+        if (nextRef?.current) {
+          await wait(500)
+          nextRef?.current.scrollIntoView(options)
+        }
       } else {
         setStore({ carModel: typeOwnCarModel })
         router.push(`/?step=4`)
+        if (nextRef?.current) {
+          await wait(500)
+          nextRef?.current.scrollIntoView(options)
+        }
       }
     } else {
       setErrorMessage('Required. Select card model or type your own model and hit continue')
+    }
+  }
+
+  const onHandleChangeRoute = async () => {
+    router.push(`/?step=2`)
+
+    if (prevRef?.current) {
+      await wait(500)
+      prevRef?.current.scrollIntoView(options)
     }
   }
 
@@ -152,7 +173,7 @@ export const CarModel = (props: CarModelProps) => {
           <button
             type="button"
             className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={() => router.push(`/?step=2`)}
+            onClick={onHandleChangeRoute}
           >
             Back
           </button>
