@@ -58,11 +58,11 @@ type StoreDataReturnType = ReturnType<typeof useStoreData>
 
 const StoreContext = createContext<StoreDataReturnType | null>(null)
 
-function FormProvider({ children }: { children: React.ReactNode }) {
+export const FormProvider = ({ children }: { children: React.ReactNode }) => {
   return <StoreContext.Provider value={useStoreData()}>{children}</StoreContext.Provider>
 }
 
-function useStore() {
+export const useStore = () => {
   const store = useContext(StoreContext)
   if (!store) {
     throw new Error('Store not found. Wrap app with FormProvider and then you can use useStore')
@@ -80,5 +80,3 @@ function useStore() {
     storageValues: store.storageValues,
   }
 }
-
-export { FormProvider, useStore }

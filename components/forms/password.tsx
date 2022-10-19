@@ -2,7 +2,6 @@ import { RefObject, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import * as Yup from 'yup'
 
 // Icons
 import { ArrowRightIcon, LockClosedIcon } from '@heroicons/react/20/solid'
@@ -14,6 +13,9 @@ import { useStore } from '../../context/form'
 import { wait } from '../../utils/wait'
 import { options } from '../../utils/scroll-view-options'
 
+// Schema
+import { passwordSchema } from './schema/password'
+
 export interface PasswordProps {
   nextRef: RefObject<HTMLDivElement> | null
   prevRef: RefObject<HTMLDivElement> | null
@@ -24,19 +26,12 @@ interface PasswordsFormProps {
   passwordConfirm: string
 }
 
-const formSchema = Yup.object().shape({
-  password: Yup.string().required('Password is required').min(4, 'Password length should be at least 4 characters'),
-  passwordConfirm: Yup.string()
-    .required('Confirm Password is required')
-    .oneOf([Yup.ref('password')], 'Passwords must and should match'),
-})
-
 export const Password = (props: PasswordProps) => {
   const { nextRef, prevRef } = props
   const { setStore, storageValues } = useStore()
   const router = useRouter()
 
-  const validationOpt = { resolver: yupResolver(formSchema) }
+  const validationOpt = { resolver: yupResolver(passwordSchema) }
 
   const {
     handleSubmit,
