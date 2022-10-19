@@ -1,40 +1,76 @@
-import { useState, createContext, useContext } from 'react'
+import { useState, createContext, useContext, useRef, useCallback, useEffect } from 'react'
 
-interface EmailFormProps {
-  email: string
+type Store = typeof initialState
+
+const initialState = {
+  email: '',
+
+  password: '',
+  passwordConfirm: '',
+
+  firstName: '',
+  lastName: '',
+  cardNumber: '',
+  expirationDate: '',
+  cvc: '',
+
+  carModel: '',
+
+  carRegistrationImage: '',
 }
 
-interface PasswordsFormProps {
-  password: string
-  passwordConfirm: string
+function useStoreData(): {
+  get: () => Store
+  set: (value: Partial<Store>) => void
+  subscribe: (callback: () => void) => () => void
+} {
+  const store = useRef(initialState)
+
+  const get = useCallback(() => store.current, [])
+
+  const subscribers = useRef(new Set<() => void>())
+
+  const set = useCallback((value: Partial<Store>) => {
+    store.current = { ...store.current, ...value }
+    subscribers.current.forEach((callback) => callback())
+  }, [])
+
+  const subscribe = useCallback((callback: () => void) => {
+    subscribers.current.add(callback)
+    return () => subscribers.current.delete(callback)
+  }, [])
+
+  return {
+    get,
+    set,
+    subscribe,
+  }
 }
 
-interface FormProps {
-  data: any
-  setFormValues: (values: any) => void
+type StoreDataReturnType = ReturnType<typeof useStoreData>
+
+const StoreContext = createContext<StoreDataReturnType | null>(null)
+
+function FormProvider({ children }: { children: React.ReactNode }) {
+  return <StoreContext.Provider value={useStoreData()}>{children}</StoreContext.Provider>
 }
 
-const FormContext = createContext({} as FormProps)
-
-const FormProvider = ({ children }: { children: React.ReactNode }) => {
-  const [data, setData] = useState<FormProps | null>(null)
-
-  const setFormValues = (values: any) => {
-    setData((prevValues) => ({
-      ...prevValues,
-      ...values,
-    }))
+function useStore() {
+  const store = useContext(StoreContext)
+  if (!store) {
+    throw new Error('Store not found. Wrap app with FormProvider and then you can use useStore')
   }
 
-  return <FormContext.Provider value={{ data, setFormValues }}>{children}</FormContext.Provider>
+  const [state, setState] = useState(store.get())
+
+  useEffect(() => {
+    return store.subscribe(() => setState(store.get()))
+  }, [])
+
+  return {
+    state,
+    setStore: store.set,
+  }
 }
 
-const useFormData = () => {
-  const context = useContext(FormContext)
-
-  if (!context) throw new Error('useContext must be used inside useFormData')
-
-  return context
-}
-
-export { useFormData, FormProvider, FormContext }
+export { FormProvider, useStore }

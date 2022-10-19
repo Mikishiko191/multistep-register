@@ -8,7 +8,7 @@ import valid from 'card-validator'
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
 
 // Context
-import { useFormData } from '../../context/form'
+import { useStore } from '../../context/form'
 
 export interface BankDetailsProps {}
 
@@ -58,7 +58,7 @@ const formSchema = Yup.object().shape({
 export const BankDetails = (props: BankDetailsProps) => {
   const {} = props
   const router = useRouter()
-  const { setFormValues } = useFormData()
+  const { setStore } = useStore()
 
   const validationOpt = { resolver: yupResolver(formSchema) }
 
@@ -70,7 +70,7 @@ export const BankDetails = (props: BankDetailsProps) => {
 
   // Do some request
   const onSubmit: SubmitHandler<BankDetailsFormProps> = (data) => {
-    setFormValues(data)
+    setStore(data)
     router.push(`/?step=3`)
   }
 

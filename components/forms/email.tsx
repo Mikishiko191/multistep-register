@@ -5,7 +5,7 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import { ArrowRightIcon, EnvelopeIcon } from '@heroicons/react/20/solid'
 
 // Context
-import { useFormData } from '../../context/form'
+import { useStore } from '../../context/form'
 
 export interface EmailProps {}
 
@@ -15,7 +15,7 @@ interface EmailFormProps {
 
 export const Email = (props: EmailProps) => {
   const {} = props
-  const { setFormValues } = useFormData()
+  const { setStore } = useStore()
   const router = useRouter()
 
   const {
@@ -27,7 +27,7 @@ export const Email = (props: EmailProps) => {
   // Do some request
   const onSubmit: SubmitHandler<EmailFormProps> = (data) => {
     router.push(`/?step=1`)
-    setFormValues(data)
+    setStore(data)
   }
 
   return (

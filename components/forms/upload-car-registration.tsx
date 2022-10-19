@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // Icons
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
 
 // Context
-import { useFormData } from '../../context/form'
+import { useStore } from '../../context/form'
 
 // Utils
 import { wait } from '../../utils/wait'
@@ -19,12 +19,20 @@ type FileProps = {
 
 export const UploadCarRegistration = (props: UploadCarRegistrationProps) => {
   const {} = props
-  const { setFormValues } = useFormData()
+  const { setStore } = useStore()
   const [image, setImage] = useState<FileProps>({ preview: '', raw: null })
   const [dragActive, setDragActive] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<null | string>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const router = useRouter()
+
+  useEffect(() => {
+    const setTimeOut = setTimeout(() => {
+      setErrorMessage(null)
+    }, 3000)
+    return () => clearTimeout(setTimeOut)
+  }, [errorMessage])
 
   const handleChange = (event: React.FormEvent) => {
     const target = event.target as HTMLInputElement
@@ -67,10 +75,14 @@ export const UploadCarRegistration = (props: UploadCarRegistrationProps) => {
 
   const onHandleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-
-    setFormValues({ carRegistrationImage: image.raw })
-    await wait(500)
-    router.push('/preview')
+    if (image?.raw) {
+      // Upload image on server and get url and pass in store
+      setStore({ carRegistrationImage: `https://cloudinary-url-${image.raw.name}` })
+      await wait(500)
+      router.push('/preview')
+    } else {
+      setErrorMessage('Upload car registration required')
+    }
   }
 
   return (
@@ -133,6 +145,7 @@ export const UploadCarRegistration = (props: UploadCarRegistrationProps) => {
                 ></div>
               )}
               <p className="text-xs text-gray-500">PNG, JPG, GIF</p>
+              {errorMessage && <p className="text-sm text-red-600 mt-2">{errorMessage}</p>}
             </div>
           </div>
         </div>

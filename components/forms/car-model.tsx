@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { RadioGroup } from '@headlessui/react'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
@@ -7,7 +7,7 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid'
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
 
 // Context
-import { useFormData } from '../../context/form'
+import { useStore } from '../../context/form'
 
 const carModelList = [
   { id: 1, title: 'Hyundai', description: 'South Korean car manufacturer' },
@@ -31,23 +31,36 @@ type CarListModelProps = typeof carModelList[0]
 
 export const CarModel = (props: CarModelProps) => {
   const {} = props
-  const { setFormValues } = useFormData()
+  const { setStore } = useStore()
   const [selectedCarModel, setSelectedCarModel] = useState<CarListModelProps | null>()
   const [typeOwnCarModel, setTypeOwnCarModel] = useState('')
+  const [errorMessage, setErrorMessage] = useState<null | string>(null)
   const router = useRouter()
+
+  useEffect(() => {
+    const setTimeOut = setTimeout(() => {
+      setErrorMessage(null)
+    }, 3000)
+    return () => clearTimeout(setTimeOut)
+  }, [errorMessage])
 
   const onHandleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    if (selectedCarModel?.id) {
-      setFormValues({ carModel: selectedCarModel.title })
-      router.push(`/?step=4`)
+    if (selectedCarModel?.id || !!typeOwnCarModel.length) {
+      if (selectedCarModel?.id) {
+        setStore({ carModel: selectedCarModel.title })
+        router.push(`/?step=4`)
+      } else {
+        setStore({ carModel: typeOwnCarModel })
+        router.push(`/?step=4`)
+      }
     } else {
-      setFormValues({ carModel: typeOwnCarModel })
-      router.push(`/?step=4`)
+      setErrorMessage('Required. Select card model or type your own model and hit continue')
     }
   }
 
   const onHandleSelectCarModel = (selectedModel: CarListModelProps) => {
+    setTypeOwnCarModel('')
     setSelectedCarModel((prevSelectedModel) => {
       if (prevSelectedModel?.id === selectedModel.id) {
         return null
@@ -58,6 +71,7 @@ export const CarModel = (props: CarModelProps) => {
   }
 
   const onHandleTypeOwnModel = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedCarModel(null)
     setTypeOwnCarModel(event.target.value)
   }
 
@@ -125,14 +139,10 @@ export const CarModel = (props: CarModelProps) => {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             onChange={onHandleTypeOwnModel}
             onClick={() => setSelectedCarModel(null)}
-            // value={typeOwnCarModel}
+            value={typeOwnCarModel || ''}
           />
-          {/* {selectedCarModel !== null && (
-            <p className="text-sm text-red-600 mt-2" id="password-error">
-              Required field
-            </p>
-          )} */}
         </div>
+        {errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
 
         <div className="flex gap-2 mt-5">
           <button

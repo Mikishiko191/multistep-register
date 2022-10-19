@@ -7,7 +7,7 @@ import * as Yup from 'yup'
 import { ArrowRightIcon, LockClosedIcon } from '@heroicons/react/20/solid'
 
 // Context
-import { useFormData } from '../../context/form'
+import { useStore } from '../../context/form'
 
 export interface PasswordProps {}
 
@@ -25,7 +25,7 @@ const formSchema = Yup.object().shape({
 
 export const Password = (props: PasswordProps) => {
   const {} = props
-  const { setFormValues } = useFormData()
+  const { setStore } = useStore()
   const router = useRouter()
 
   const validationOpt = { resolver: yupResolver(formSchema) }
@@ -38,7 +38,7 @@ export const Password = (props: PasswordProps) => {
 
   // Do some request
   const onSubmit: SubmitHandler<PasswordsFormProps> = (data) => {
-    setFormValues(data)
+    setStore(data)
     router.push(`/?step=2`)
   }
 
