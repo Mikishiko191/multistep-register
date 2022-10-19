@@ -14,6 +14,9 @@ import { UploadCarRegistration } from '../components/forms/upload-car-registrati
 import { CarModel } from '../components/forms/car-model'
 import { BankDetails } from '../components/forms/bank-details'
 
+// Hooks
+import { useLocalStorage } from '../hooks/useLocalStorage'
+
 const stepProgress = (step: string | string[] | 0) => {
   switch (step) {
     case '0':
@@ -35,9 +38,10 @@ const Home: NextPage = () => {
   const emailRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const formStep = router.query.step ?? 0
+  const [formStepValue, _setFormStepValue] = useLocalStorage<typeof formStep>('form-step', 0)
 
   useEffect(() => {
-    router.push(`/?step=0`)
+    router.push(`/?step=${formStepValue}`)
   }, [])
 
   return (
@@ -52,19 +56,19 @@ const Home: NextPage = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-5">
           <div className="mx-auto max-w-3xl">
             <Steps />
-            <div className="mt-5">
-              {/* <h2 className="font-semibold leading-6 text-indigo-600">Work with us</h2> */}
-              <h3 className="mt-2 text-3xl font-bold leading-8 tracking-tight text-indigo-600 sm:text-4xl">
+            {/* <div className="mt-5"> */}
+            {/* <h2 className="font-semibold leading-6 text-indigo-600">Work with us</h2> */}
+            {/* <h3 className="mt-2 text-3xl font-bold leading-8 tracking-tight text-indigo-600 sm:text-4xl">
                 Our Process
-              </h3>
-            </div>
+              </h3> */}
+            {/* </div> */}
           </div>
         </div>
 
         <ProgressBar percent={stepProgress(formStep)} />
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-48 mb-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-28 mb-10">
         <main className="mx-auto max-w-3xl">
           <div className={`${formStep === '0' ? '' : 'opacity-50 cursor-not-allowed'}`}>
             <Email />

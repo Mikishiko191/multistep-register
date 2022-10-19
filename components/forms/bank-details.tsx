@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -31,25 +32,33 @@ const formSchema = Yup.object().shape({
     ),
   expirationDate: Yup.string()
     .required('Expiration date field required')
-    .test('test-credit-card-expiration-date', 'Invalid Expiration Date has past', (expirationDate) => {
-      if (!expirationDate) {
-        return false
+    .test(
+      'test-credit-card-expiration-date',
+      `Invalid Expiration Date: Please make sure you add "/" sign after month and valid year`,
+      (expirationDate) => {
+        if (!expirationDate) {
+          return false
+        }
+
+        if (!expirationDate.includes('/')) {
+          return false
+        }
+
+        const today = new Date()
+        const monthToday = today.getMonth() + 1
+        const yearToday = today.getFullYear().toString().substr(-2)
+
+        const [expMonth, expYear] = expirationDate.split('/')
+
+        if (Number(expYear) < Number(yearToday)) {
+          return false
+        } else if (Number(expMonth) < monthToday && Number(expYear) <= Number(yearToday)) {
+          return false
+        }
+
+        return true
       }
-
-      const today = new Date()
-      const monthToday = today.getMonth() + 1
-      const yearToday = today.getFullYear().toString().substr(-2)
-
-      const [expMonth, expYear] = expirationDate.split('/')
-
-      if (Number(expYear) < Number(yearToday)) {
-        return false
-      } else if (Number(expMonth) < monthToday && Number(expYear) <= Number(yearToday)) {
-        return false
-      }
-
-      return true
-    }),
+    ),
   cvc: Yup.string()
     .required('CVC field required')
     .test('test-number', 'Credit Card Verification number is invalid', (value) => valid.cvv(value).isValid),
@@ -58,7 +67,7 @@ const formSchema = Yup.object().shape({
 export const BankDetails = (props: BankDetailsProps) => {
   const {} = props
   const router = useRouter()
-  const { setStore } = useStore()
+  const { setStore, storageValues } = useStore()
 
   const validationOpt = { resolver: yupResolver(formSchema) }
 
@@ -66,10 +75,20 @@ export const BankDetails = (props: BankDetailsProps) => {
     handleSubmit,
     formState: { errors },
     register,
+    setValue,
   } = useForm<BankDetailsFormProps>(validationOpt)
 
+  useEffect(() => {
+    setValue('firstName', storageValues.firstName)
+    setValue('lastName', storageValues.lastName)
+    setValue('cardNumber', storageValues.cardNumber)
+    setValue('expirationDate', storageValues.expirationDate)
+    setValue('cvc', storageValues.cvc)
+  }, [])
+
   // Do some request
-  const onSubmit: SubmitHandler<BankDetailsFormProps> = (data) => {
+  const onSubmit: SubmitHandler<BankDetailsFormProps> = (data, e) => {
+    e?.preventDefault()
     setStore(data)
     router.push(`/?step=3`)
   }
@@ -145,6 +164,7 @@ export const BankDetails = (props: BankDetailsProps) => {
               id="card-expiration-date"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               placeholder="MM / YY"
+              maxLength={5}
               {...register('expirationDate', {
                 required: true,
               })}

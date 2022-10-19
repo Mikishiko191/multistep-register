@@ -31,7 +31,7 @@ type CarListModelProps = typeof carModelList[0]
 
 export const CarModel = (props: CarModelProps) => {
   const {} = props
-  const { setStore } = useStore()
+  const { setStore, storageValues } = useStore()
   const [selectedCarModel, setSelectedCarModel] = useState<CarListModelProps | null>()
   const [typeOwnCarModel, setTypeOwnCarModel] = useState('')
   const [errorMessage, setErrorMessage] = useState<null | string>(null)
@@ -43,6 +43,10 @@ export const CarModel = (props: CarModelProps) => {
     }, 3000)
     return () => clearTimeout(setTimeOut)
   }, [errorMessage])
+
+  useEffect(() => {
+    setTypeOwnCarModel(storageValues.carModel)
+  }, [])
 
   const onHandleSubmit = (event: React.FormEvent) => {
     event.preventDefault()

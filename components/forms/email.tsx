@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useForm, SubmitHandler } from 'react-hook-form'
 
@@ -15,17 +16,23 @@ interface EmailFormProps {
 
 export const Email = (props: EmailProps) => {
   const {} = props
-  const { setStore } = useStore()
+  const { setStore, storageValues } = useStore()
   const router = useRouter()
 
   const {
     handleSubmit,
     formState: { errors },
     register,
+    setValue,
   } = useForm<EmailFormProps>()
 
+  useEffect(() => {
+    setValue('email', storageValues.email)
+  }, [])
+
   // Do some request
-  const onSubmit: SubmitHandler<EmailFormProps> = (data) => {
+  const onSubmit: SubmitHandler<EmailFormProps> = (data, e) => {
+    e?.preventDefault()
     router.push(`/?step=1`)
     setStore(data)
   }

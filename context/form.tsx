@@ -1,8 +1,11 @@
 import { useState, createContext, useContext, useRef, useCallback, useEffect } from 'react'
 
-type Store = typeof initialState
+// Hooks
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
-const initialState = {
+export type StoreProps = typeof initialState
+
+export const initialState = {
   email: '',
 
   password: '',
@@ -20,18 +23,21 @@ const initialState = {
 }
 
 function useStoreData(): {
-  get: () => Store
-  set: (value: Partial<Store>) => void
+  get: () => StoreProps
+  set: (value: Partial<StoreProps>) => void
   subscribe: (callback: () => void) => () => void
+  storageValues: StoreProps
 } {
   const store = useRef(initialState)
+  const [formValues, setFormValues] = useLocalStorage<StoreProps>('form', initialState)
 
   const get = useCallback(() => store.current, [])
 
   const subscribers = useRef(new Set<() => void>())
 
-  const set = useCallback((value: Partial<Store>) => {
+  const set = useCallback((value: Partial<StoreProps>) => {
     store.current = { ...store.current, ...value }
+    setFormValues({ ...store.current, ...value })
     subscribers.current.forEach((callback) => callback())
   }, [])
 
@@ -44,6 +50,7 @@ function useStoreData(): {
     get,
     set,
     subscribe,
+    storageValues: formValues,
   }
 }
 
@@ -70,6 +77,7 @@ function useStore() {
   return {
     state,
     setStore: store.set,
+    storageValues: store.storageValues,
   }
 }
 

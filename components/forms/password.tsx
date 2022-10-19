@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -25,7 +26,7 @@ const formSchema = Yup.object().shape({
 
 export const Password = (props: PasswordProps) => {
   const {} = props
-  const { setStore } = useStore()
+  const { setStore, storageValues } = useStore()
   const router = useRouter()
 
   const validationOpt = { resolver: yupResolver(formSchema) }
@@ -34,10 +35,17 @@ export const Password = (props: PasswordProps) => {
     handleSubmit,
     formState: { errors },
     register,
+    setValue,
   } = useForm<PasswordsFormProps>(validationOpt)
 
+  useEffect(() => {
+    setValue('password', storageValues.password)
+    setValue('passwordConfirm', storageValues.passwordConfirm)
+  }, [])
+
   // Do some request
-  const onSubmit: SubmitHandler<PasswordsFormProps> = (data) => {
+  const onSubmit: SubmitHandler<PasswordsFormProps> = (data, e) => {
+    e?.preventDefault()
     setStore(data)
     router.push(`/?step=2`)
   }
@@ -55,7 +63,8 @@ export const Password = (props: PasswordProps) => {
               <LockClosedIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
             </div>
             <input
-              type="password"
+              // type="password"
+              type="text"
               id="password"
               className="block w-full rounded-md border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               placeholder="Password"
@@ -80,7 +89,8 @@ export const Password = (props: PasswordProps) => {
               <LockClosedIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
             </div>
             <input
-              type="password"
+              // type="password"
+              type="text"
               id="password-confirm"
               className="block w-full rounded-md border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               placeholder="Confirm password"

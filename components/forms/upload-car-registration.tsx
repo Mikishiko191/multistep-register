@@ -81,7 +81,7 @@ export const UploadCarRegistration = (props: UploadCarRegistrationProps) => {
       await wait(500)
       router.push('/preview')
     } else {
-      setErrorMessage('Upload car registration required')
+      setErrorMessage('Upload car registration image required')
     }
   }
 
