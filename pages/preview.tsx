@@ -17,7 +17,7 @@ const Preview: NextPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-32 mb-10">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-16 mb-10">
       <main className="mx-auto max-w-3xl">
         <div className="overflow-hidden bg-white shadow sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6">
