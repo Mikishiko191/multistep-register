@@ -1,4 +1,4 @@
-import type { NextPage } from 'next'
+import type { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useRef, useEffect } from 'react'
@@ -22,7 +22,15 @@ import { wait } from '../utils/wait'
 import { options } from '../utils/scroll-view-options'
 import { stepProgress } from '../utils/step-progress'
 
-const Home: NextPage = () => {
+// Server
+import { CarListData } from './api/car-list'
+
+interface MainProps {
+  carList: CarListData[]
+}
+
+const Main = (props: MainProps) => {
+  const { carList } = props
   const emailRef = useRef<HTMLDivElement>(null)
   const passwordRef = useRef<HTMLDivElement>(null)
   const bankDetailRef = useRef<HTMLDivElement>(null)
@@ -97,7 +105,7 @@ const Home: NextPage = () => {
           </div>
 
           <div className={`mt-20 ${formStep === '3' ? '' : 'opacity-50 cursor-not-allowed'}`} ref={carModelRef}>
-            <CarModel nextRef={uploadCarRegistrationRef} prevRef={bankDetailRef} />
+            <CarModel nextRef={uploadCarRegistrationRef} prevRef={bankDetailRef} carList={carList} />
           </div>
           <div
             className={`mt-20 ${formStep === '4' ? '' : 'opacity-50 cursor-not-allowed'}`}
@@ -111,4 +119,19 @@ const Home: NextPage = () => {
   )
 }
 
-export default Home
+export const getServerSideProps: GetServerSideProps = async () => {
+  const res = await fetch(`http://localhost:3000/api/car-list`)
+  const carList = await res.json()
+
+  if (!carList) {
+    return {
+      notFound: true,
+    }
+  }
+
+  return {
+    props: { carList },
+  }
+}
+
+export default Main

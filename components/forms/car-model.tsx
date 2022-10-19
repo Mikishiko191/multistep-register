@@ -14,29 +14,19 @@ import { classNames } from '../../utils/classNames'
 import { options } from '../../utils/scroll-view-options'
 import { wait } from '../../utils/wait'
 
-const carModelList = [
-  { id: 1, title: 'Hyundai', description: 'South Korean car manufacturer' },
-  { id: 2, title: 'Kia', description: 'Sister company Hyunda' },
-  { id: 3, title: 'BYD', description: 'Build Your Dreams (BYD) Auto is an electric vehicle' },
-  { id: 4, title: 'Nissan', description: 'Japanese car maker' },
-  { id: 5, title: 'BMW', description: 'BMW has been a key pioneer of electric cars' },
-  { id: 6, title: 'Mercedes-Benz', description: 'Rapidly expanding its pure-electric ‘EQ’ line-up' },
-  { id: 7, title: 'Rivian', description: 'American startup Rivian is vying with Tesla' },
-  { id: 8, title: 'Volkswagen', description: 'Stuttgart automaker Volkswagen Group' },
-  { id: 9, title: 'Geely', description: 'Chinese conglomerate Geely Auto' },
-]
+// Server
+import { CarListData } from '../../pages/api/car-list'
 
 export interface CarModelProps {
   nextRef: RefObject<HTMLDivElement> | null
   prevRef: RefObject<HTMLDivElement> | null
+  carList: CarListData[]
 }
 
-type CarListModelProps = typeof carModelList[0]
-
 export const CarModel = (props: CarModelProps) => {
-  const { nextRef, prevRef } = props
+  const { nextRef, prevRef, carList } = props
   const { setStore, storageValues } = useStore()
-  const [selectedCarModel, setSelectedCarModel] = useState<CarListModelProps | null>()
+  const [selectedCarModel, setSelectedCarModel] = useState<CarListData | null>()
   const [typeOwnCarModel, setTypeOwnCarModel] = useState('')
   const [errorMessage, setErrorMessage] = useState<null | string>(null)
   const router = useRouter()
@@ -84,7 +74,7 @@ export const CarModel = (props: CarModelProps) => {
     }
   }
 
-  const onHandleSelectCarModel = (selectedModel: CarListModelProps) => {
+  const onHandleSelectCarModel = (selectedModel: CarListData) => {
     setTypeOwnCarModel('')
     setSelectedCarModel((prevSelectedModel) => {
       if (prevSelectedModel?.id === selectedModel.id) {
@@ -108,11 +98,11 @@ export const CarModel = (props: CarModelProps) => {
           <RadioGroup.Label className="text-base font-medium text-gray-900">Select your car model</RadioGroup.Label>
 
           <div className="mt-4 grid grid-cols-1 gap-y-4 sm:grid-cols-3 sm:gap-x-4">
-            {carModelList.map((mailingList) => (
+            {carList.map((car) => (
               <RadioGroup.Option
-                key={mailingList.id}
-                value={mailingList}
-                onClick={() => onHandleSelectCarModel(mailingList)}
+                key={car.id}
+                value={car}
+                onClick={() => onHandleSelectCarModel(car)}
                 className={({ checked, active }) =>
                   classNames(
                     checked ? 'border-transparent' : 'border-gray-300',
@@ -126,10 +116,10 @@ export const CarModel = (props: CarModelProps) => {
                     <span className="flex flex-1">
                       <span className="flex flex-col">
                         <RadioGroup.Label as="span" className="block text-sm font-medium text-gray-900">
-                          {mailingList.title}
+                          {car.title}
                         </RadioGroup.Label>
                         <RadioGroup.Description as="span" className="mt-1 flex items-center text-sm text-gray-500">
-                          {mailingList.description}
+                          {car.description}
                         </RadioGroup.Description>
                       </span>
                     </span>
